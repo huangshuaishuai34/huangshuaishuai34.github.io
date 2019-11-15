@@ -173,6 +173,122 @@
 <script src="https://cdn.jsdelivr.net/npm/meting@1.1.1/dist/Meting.min.js"></script>
 
 
+<article id="post-teach-gitalk" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/11/16/teach-gitalk/">Hexo yilia 主题使用gitalk评论插件</a>
+    </h1>
+  
+
+
+        <!--显示阅读次数#ef7522【黄色】-->
+        
+
+        
+        <a href="/2019/11/16/teach-gitalk/" class="archive-article-date">
+  	<time datetime="2019-11-15T20:04:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-11-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>   不管怎样评论功能对博客来说必不可少，太多评论插件不好用或者需要备案再或者已下线，但是gitalk不仅好用还适配移动端，太香了。</p>
+<h3 id="Gitalk使用"><a href="#Gitalk使用" class="headerlink" title="Gitalk使用"></a>Gitalk使用</h3><p>   在layout/_partial/post目录下新增gitalk.ejs文件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;div id=<span class="string">"gitalk-container"</span> style=<span class="string">"padding: 0px 30px 0px 30px;"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span> </span><br><span class="line"></span><br><span class="line">&lt;link rel=<span class="string">"stylesheet"</span> href=<span class="string">"https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"</span>&gt;</span><br><span class="line">&lt;script src=<span class="string">"https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="xml"><span class="tag">&lt;<span class="name">%=theme.gitalk.enable%</span>&gt;</span>)&#123;</span></span><br><span class="line"><span class="xml">	var gitalk = new Gitalk(&#123;</span></span><br><span class="line"><span class="xml">  	clientID: '<span class="tag">&lt;<span class="name">%=theme.gitalk.ClientID%</span>&gt;</span>',</span></span><br><span class="line"><span class="xml">  	clientSecret: '<span class="tag">&lt;<span class="name">%=theme.gitalk.ClientSecret%</span>&gt;</span>',</span></span><br><span class="line"><span class="xml">  	repo: '<span class="tag">&lt;<span class="name">%=theme.gitalk.repo%</span>&gt;</span>',</span></span><br><span class="line"><span class="xml">  	owner: '<span class="tag">&lt;<span class="name">%=theme.gitalk.githubID%</span>&gt;</span>',</span></span><br><span class="line"><span class="xml">  	admin: ['<span class="tag">&lt;<span class="name">%=theme.gitalk.adminUser%</span>&gt;</span>'],</span></span><br><span class="line"><span class="xml">  	id: '<span class="tag">&lt;<span class="name">%=</span> <span class="attr">page.date</span> %&gt;</span>',</span></span><br><span class="line"><span class="xml">  	distractionFreeMode: '<span class="tag">&lt;<span class="name">%=theme.gitalk.distractionFreeMode%</span>&gt;</span>'</span></span><br><span class="line"><span class="xml">&#125;)</span></span><br><span class="line"><span class="xml">gitalk.render('gitalk-container') </span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>修改<code>source-src/css</code>/目录下<code>comment.scss</code>文件</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-id">#disqus_thread</span>, <span class="selector-class">.duoshuo</span>, <span class="selector-class">.cloud-tie-wrapper</span>, <span class="selector-id">#SOHUCS</span>, <span class="selector-id">#gitment-ctn</span>, <span class="selector-id">#gitalk-container</span> &#123;</span><br><span class="line">	<span class="attribute">padding</span>: <span class="number">0</span> <span class="number">30px</span> <span class="meta">!important</span>;</span><br><span class="line">	<span class="attribute">min-height</span>: <span class="number">20px</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-id">#SOHUCS</span> &#123;</span><br><span class="line">	#SOHU_MAIN .module-cmt-list .block-cont-gw &#123;</span><br><span class="line">		<span class="selector-tag">border-bottom</span>: 1<span class="selector-tag">px</span> <span class="selector-tag">dashed</span> <span class="selector-id">#c8c8c8</span> !<span class="selector-tag">important</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在layout/_partial目录下的article.ejs文件内新增gitalk相关的配置代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;% if(theme.gitalk.enable)&#123; %&gt;</span><br><span class="line">  &lt;%- partial(&apos;post/gitalk&apos;, &#123;</span><br><span class="line">      key: post.slug,</span><br><span class="line">      title: post.title,</span><br><span class="line">      url: config.url+url_for(post.path)</span><br><span class="line">    &#125;) %&gt;</span><br><span class="line">  &lt;% &#125; %&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最后在yilia主题配置文件中新增gitalk相关的配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#6、gitalk评论</span><br><span class="line">gitalk:</span><br><span class="line">  enable:  true</span><br><span class="line">  githubID:  Ziven-n   </span><br><span class="line">  repo:  &apos;mycomments&apos;</span><br><span class="line">  ClientID:  &apos;29fd06ce234338fe233&apos;</span><br><span class="line">  ClientSecret:  &apos;090b271a3e6ce6fae6fc80ce4d4344671aa&apos;</span><br><span class="line">  adminUser:  Ziven-n</span><br><span class="line">  distractionFreeMode: tru</span><br></pre></td></tr></table></figure>
+
+<p>最后<code>hexo d -g</code> 即可</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag article-tag-list-link color5">Hexo</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag article-tag-list-link color2">gitalk</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/学习教程//" class="article-tag-list-link color5">学习教程</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/11/16/teach-gitalk/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" target="_blank" rel="noopener" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+    <!-- Import APlayer -->
+<link href="https://cdn.jsdelivr.net/npm/aplayer@1.9.0/dist/APlayer.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.9.0/dist/APlayer.min.js"></script>
+<!-- Import meting.js -->
+<script src="https://cdn.jsdelivr.net/npm/meting@1.1.1/dist/Meting.min.js"></script>
+
+
 <article id="post-my-first-blog" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -551,6 +667,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag color2">gitalk</a>
               </li>
              
               <li class="article-tag-list-item">
