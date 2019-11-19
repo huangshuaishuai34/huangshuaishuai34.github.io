@@ -173,6 +173,166 @@
 <script src="https://cdn.jsdelivr.net/npm/meting@1.1.1/dist/Meting.min.js"></script>
 
 
+<article id="post-mySql-SuoYin" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/11/19/mySql-SuoYin/">Mysql索引的建立及Sql执行计划分析</a>
+    </h1>
+  
+
+
+        <!--显示阅读次数#ef7522【黄色】-->
+        
+
+        
+        <a href="/2019/11/19/mySql-SuoYin/" class="archive-article-date">
+  	<time datetime="2019-11-19T15:53:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-11-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>   如果数据库的一张表数据有上百万条记录，此时直接影响数据的搜索与数据获取速度，那么在Mysql数据库上建立索引就非常有必要。建立索引后再使用sql执行计划分析索引是否有效与sql语句的优化。</p>
+<h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><p>本文使用手动创建，Sql语句创建<a href="https://blog.csdn.net/liutong123987/article/details/79384395" target="_blank" rel="noopener">参考</a></p>
+<ul>
+<li><p>打开 Navicat 找到需要上索引的表,右键设计表找到索引</p>
+<p><img src="/2019/11/19/mySql-SuoYin/1.png" alt="设计表"></p>
+</li>
+<li><p>新建一个索引，给索引命名，选择需要索引的字段可组合，索引类型，索引方法.</p>
+<p><img src="/2019/11/19/mySql-SuoYin/2.png" alt="新建索引"></p>
+</li>
+<li><p>Ctrl+s保存 索引设置成功</p>
+</li>
+</ul>
+<h3 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a>索引类型</h3><p>Mysql目前主要有以下几种索引类型：<code>Normal</code>,<code>Unique</code>,<code>FULLTEXT</code>，<code>HASH</code>，<code>BTREE</code>。</p>
+<ol>
+<li><h5 id="Normal"><a href="#Normal" class="headerlink" title="Normal"></a>Normal</h5><p>表示普通索引，大多数情况下都可以使用</p>
+</li>
+<li><h5 id="Unique"><a href="#Unique" class="headerlink" title="Unique"></a>Unique</h5><p>约束唯一标识数据库表中的每一条记录，即在单表中不能用每条记录是唯一的（例如身份证就是唯一的），Unique(要求列唯一)和Primary Key(primary key = unique + not null 列唯一)约束均为列或列集合中提供了唯一性的保证，Primary Key是拥有自动定义的Unique约束，但是每个表中可以有多个Unique约束，但是只能有一个Primary Key约束。<br>mysql中创建Unique约束</p>
+</li>
+<li><h5 id="FULLTEXT"><a href="#FULLTEXT" class="headerlink" title="FULLTEXT"></a>FULLTEXT</h5><p>表示全文收索，在检索长文本的时候，效果最好，短文本建议使用Index,但是在检索的时候数据量比较大的时候，现将数据放入一个没有全局索引的表中，然后在用Create Index创建的Full Text索引，要比先为一张表建立Full Text然后在写入数据要快的很多 </p>
+</li>
+<li><h5 id="HASH"><a href="#HASH" class="headerlink" title="HASH"></a>HASH</h5><p>hash 索引结构的特殊性，其检索效率非常高，索引的检索可以一次定位，不像B-Tree 索引需要从根节点到枝节点，最后才能访问到页节点这样多次的IO访问，所以 Hash 索引的查询效率要远高于 B-Tree 索引。 虽然 Hash 索引效率高，但是 Hash 索引本身由于其特殊性也带来了很多限制和弊端，主要有以下这些。</p>
+<blockquote>
+<p>（1）Hash 索引仅仅能满足”=”,”IN”和”&lt;=&gt;”查询，不能使用范围查询。</p>
+<p>由于 Hash 索引比较的是进行 Hash 运算之后的 Hash 值，所以它只能用于等值的过滤，不能用于基于范围的过滤，因为经过相应的 Hash 算法处理之后的 Hash 值的大小关系，并不能保证和Hash运算前完全一样。</p>
+<p>（2）Hash 索引无法被用来避免数据的排序操作。</p>
+<p>由于 Hash 索引中存放的是经过 Hash 计算之后的 Hash 值，而且Hash值的大小关系并不一定和 Hash 运算前的键值完全一样，所以数据库无法利用索引的数据来避免任何排序运算；</p>
+<p>（3）Hash 索引不能利用部分索引键查询。</p>
+<p>对于组合索引，Hash 索引在计算 Hash 值的时候是组合索引键合并后再一起计算 Hash 值，而不是单独计算 Hash 值，所以通过组合索引的前面一个或几个索引键进行查询的时候，Hash 索引也无法被利用。</p>
+<p>（4）Hash 索引在任何时候都不能避免表扫描。</p>
+<p>前面已经知道，Hash 索引是将索引键通过 Hash 运算之后，将 Hash运算结果的 Hash 值和所对应的行指针信息存放于一个 Hash 表中，由于不同索引键存在相同 Hash 值，所以即使取满足某个 Hash 键值的数据的记录条数，也无法从 Hash 索引中直接完成查询，还是要通过访问表中的实际数据进行相应的比较，并得到相应的结果。</p>
+<p>（5）Hash 索引遇到大量Hash值相等的情况后性能并不一定就会比B-Tree索引高。</p>
+<p>对于选择性比较低的索引键，如果创建 Hash 索引，那么将会存在大量记录指针信息存于同一个 Hash 值相关联。这样要定位某一条记录时就会非常麻烦，会浪费多次表数据的访问，而造成整体性能低下。</p>
+</blockquote>
+</li>
+<li><h4 id="BTREE"><a href="#BTREE" class="headerlink" title="BTREE"></a>BTREE</h4><p>BTREE索引就是一种将索引值按一定的算法，存入一个树形的数据结构中（二叉树），每次查询都是从树的入口root开始，依次遍历node，获取leaf。这是MySQL里默认和最常用的索引类型。</p>
+</li>
+</ol>
+<h4 id="Sql执行计划分析效率"><a href="#Sql执行计划分析效率" class="headerlink" title="Sql执行计划分析效率"></a>Sql执行计划分析效率</h4><p>Sql执行计划是查看执行Sql语句时的表现情况，通常用于Sql语句的性能分析，优化等。</p>
+<p>使用方法：在需要分析的Sql语句前加上<code>explain</code></p>
+<p>例</p>
+<p><img src="/2019/11/19/mySql-SuoYin/3.png" alt="sp_goods"></p>
+<center>表sp_goods</center>
+
+<p>执行下面语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">explain select * from sp_goods where name=&apos;北欧实木床&apos;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>结果:</p>
+<p><img src="/2019/11/19/mySql-SuoYin/4.png" alt="jieguo"></p>
+<p><img src="/2019/11/19/mySql-SuoYin/5.png" alt="dd"></p>
+<p>我们一一来介绍,并说明每个属性有哪些可选值,以及每个可选值的意思。</p>
+<ul>
+<li>id<br>表示查询中select操作表的顺序,按顺序从大到依次执行</li>
+<li>select_type :<br>该表示选择的类型,可选值有: SIMPLE(简单的)</li>
+<li>type :<br>该属性表示访问类型,有很多种访问类型。<br>最常见的其中包括以下几种: ALL(全表扫描), index(索引扫描),range(范围扫描),ref (非唯一索引扫描),eq_ref(唯一索引扫描,),(const)常数引用, 访问速度依次由慢到快。其中 : range(范围)常见与 between and …, 大于 and 小于这种情况。<br>提示 : 慢SQL是否走索引,走了什么索引,也就可以通过该属性查看了。</li>
+<li>table :<br>表示该语句查询的表</li>
+<li>possible_keys :<br>顾名思义,该属性给出了,该查询语句,可能走的索引,(如某些字段上索引的名字)这里提供的只是参考,而不是实际走的索引,也就导致会有possible_Keys不为null,key为空的现象。</li>
+<li>key :<br>显示MySQL实际使用的索引,其中就包括主键索引(PRIMARY),或者自建索引的名字。</li>
+<li>key_len :<br>表示索引所使用的字节数，</li>
+<li>ref :<br>连接匹配条件,如果走主键索引的话,该值为: const, 全表扫描的话,为null值</li>
+<li>rows :<br>扫描行数,也就是说，需要扫描多少行,采能获取目标行数,一般情况下会大于返回行数。通常情况下,rows越小,效率越高, 也就有大部分SQL优化，都是在减少这个值的大小。注意:  理想情况下扫描的行数与实际返回行数理论上是一致的,但这种情况及其少,如关联查询,扫描的行数就会比返回行数大大增加)</li>
+<li>Extra<br>这个属性非常重要,该属性中包括执行SQL时的真实情况信息,如上面所属,使用到的是”using where”，表示使用</li>
+<li>where筛选得到的值,常用的有:<br>“Using temporary”: 使用临时表 “using filesort”: 使用文件排序</li>
+</ul>
+<h3 id="不用索引情况"><a href="#不用索引情况" class="headerlink" title="不用索引情况"></a>不用索引情况</h3><p><img src="/2019/11/19/mySql-SuoYin/6.png" alt="re"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag article-tag-list-link color1">Mysql</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/学习教程//" class="article-tag-list-link color5">学习教程</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/11/19/mySql-SuoYin/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" target="_blank" rel="noopener" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+    <!-- Import APlayer -->
+<link href="https://cdn.jsdelivr.net/npm/aplayer@1.9.0/dist/APlayer.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.9.0/dist/APlayer.min.js"></script>
+<!-- Import meting.js -->
+<script src="https://cdn.jsdelivr.net/npm/meting@1.1.1/dist/Meting.min.js"></script>
+
+
 <article id="post-teach-gitalk" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -669,6 +829,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag color1">Mysql</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" target="_blank" rel="noopener" class="js-tag color5">Hexo</a>
